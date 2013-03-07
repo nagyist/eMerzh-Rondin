@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<info>
+	<id>rondin</id>
+	<name>Rondin Logging</name>
+	<description>Logging is important for you ? So it is for me :)</description>
+	<version>0.1</version>
+	<licence>AGPL</licence>
+	<author>Brice Maron</author>
+	<require>4</require>
+</info>
