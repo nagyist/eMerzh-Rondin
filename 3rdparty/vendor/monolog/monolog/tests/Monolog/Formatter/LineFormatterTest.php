@@ -11,8 +11,9 @@
 
 namespace Monolog\Formatter;
 
-use Monolog\Logger;
-
+/**
+ * @covers Monolog\Formatter\LineFormatter
+ */
 class LineFormatterTest extends \PHPUnit_Framework_TestCase
 {
     public function testDefFormatWithString()
@@ -60,6 +61,20 @@ class LineFormatterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('['.date('Y-m-d').'] meh.ERROR: log [] {"ip":"127.0.0.1"}'."\n", $message);
     }
 
+    public function testFormatExtras()
+    {
+        $formatter = new LineFormatter("[%datetime%] %channel%.%level_name%: %message% %context% %extra.file% %extra%\n", 'Y-m-d');
+        $message = $formatter->format(array(
+            'level_name' => 'ERROR',
+            'channel' => 'meh',
+            'context' => array(),
+            'datetime' => new \DateTime,
+            'extra' => array('ip' => '127.0.0.1', 'file' => 'test'),
+            'message' => 'log',
+        ));
+        $this->assertEquals('['.date('Y-m-d').'] meh.ERROR: log [] test {"ip":"127.0.0.1"}'."\n", $message);
+    }
+
     public function testDefFormatWithObject()
     {
         $formatter = new LineFormatter(null, 'Y-m-d');
@@ -71,7 +86,8 @@ class LineFormatterTest extends \PHPUnit_Framework_TestCase
             'extra' => array('foo' => new TestFoo, 'bar' => new TestBar, 'baz' => array(), 'res' => fopen('php://memory', 'rb')),
             'message' => 'foobar',
         ));
-        $this->assertEquals('['.date('Y-m-d').'] meh.ERROR: foobar [] {"foo":"[object] (Monolog\\Formatter\\TestFoo: {"foo":"foo"})","bar":"[object] (Monolog\\Formatter\\TestBar: {})","baz":[],"res":"[resource]"}'."\n", $message);
+
+        $this->assertEquals('['.date('Y-m-d').'] meh.ERROR: foobar [] {"foo":"[object] (Monolog\\\\Formatter\\\\TestFoo: {\\"foo\\":\\"foo\\"})","bar":"[object] (Monolog\\\\Formatter\\\\TestBar: {})","baz":[],"res":"[resource]"}'."\n", $message);
     }
 
     public function testBatchFormat()
