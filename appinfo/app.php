@@ -26,6 +26,10 @@ class RondinLoader {
       $name = str_replace('\\','/',$name);
       require_once OC_App::getAppPath('rondin').'/3rdparty/vendor/monolog/monolog/src/'.$name.'.php';
     }
+    if(strpos($name, 'Psr\\') === 0) {
+      $name = str_replace('\\','/',$name);
+      require_once OC_App::getAppPath('rondin').'/3rdparty/vendor/psr/log/'.$name.'.php';
+    }
   }
 }
 
@@ -51,20 +55,95 @@ class Rondin extends \OC_Log {
     parent::$class = $this;
     parent::$enabled = true;
 
+    //self::$logger = new Logger('name');
+    //self::$logger->pushHandler(new StreamHandler('/tmp/your.log', Logger::DEBUG));
+  }
+
+
+  function configure() {
+    $config = array('handlers' => array(
+        'Stream' => array(
+          '/tmp/your.log',
+          'formatters' => array(
+            'Line' => array("%datetime% OUUPS %channel% %level_name%: %message% -- %extra%\n")
+          ),
+        ),
+      ),
+      'processors' => array('MemoryUsage', 'Web'),
+    );
     self::$logger = new Logger('name');
-    self::$logger->pushHandler(new StreamHandler('/tmp/your.log', Logger::DEBUG));
+    $this->__push(self::$logger, $config['handlers']);
+    $this->__push(self::$logger, $config['processors'], 'Processor');
+  }
+
+  private function __push($object, $list, $type = 'Handler') {
+    if (empty($list)) {
+      if ('Handler' == $type) {
+        $list = array('Stream' => array('/tpm/monolog.log'));
+      }
+    }
+
+    foreach ($list as $name => $params) {
+      if (is_numeric($name)) {
+        $name = $params;
+        $params = array();
+      }
+      $this->initLogger($object, $name, $type, $params);
+    }
+  }
+
+  protected function initLogger($object , $name, $type, $params) {
+    $extras = array('formatters', 'processors');
+
+    $class = $name;
+    if (strpos($class, $type) === false) {
+      $class = "\Monolog\\$type\\$name$type";
+    /*} else if (isset($params['search'])) {
+      if (strpos($params['search'], '.php') === false) {
+        $params['search'] .= DS . $class . '.php';
+      }
+      require_once $params['search'];
+      unset($params['search']);
+*/
+    }
+
+    if ('Handler' === $type) {
+      foreach ($extras as $k) {
+        if (isset($params[$k])) {
+          $$k = $params[$k];
+          unset($params[$k]);
+        }
+      }
+    }
+
+    $method = "push$type";
+    if ('Formatter' === $type) {
+      $method = 'setFormatter';
+    }
+    $tmp_class = new ReflectionClass($class);
+    $_class = $tmp_class->newInstanceArgs($params);
+    $object->$method($_class);
+
+    foreach ($extras as $k) {
+      if (!empty($$k)) {
+        $this->__push($_class, (array) $$k, ucfirst(substr($k, 0, strlen($k) - 1)));
+      }
+    }
   }
 
   static function write($app, $message, $lvl) {
-    if(OC_Log::DEBUG == $lvl) $level = Logger::DEBUG;
-    elseif(OC_Log::INFO == $lvl) $level = Logger::INFO;
-    elseif(OC_Log::WARN == $lvl) $level = Logger::WARNING;
-    elseif(OC_Log::ERROR == $lvl) $level = Logger::ERROR;
-    elseif(OC_Log::FATAL == $lvl) $level = Logger::CRITICAL;
+    if(OC_Log::DEBUG == $lvl) $level = 'debug';
+    elseif(OC_Log::INFO == $lvl) $level = 'info';
+    elseif(OC_Log::WARN == $lvl) $level = 'warning';
+    elseif(OC_Log::ERROR == $lvl) $level = 'error';
+    elseif(OC_Log::FATAL == $lvl) $level = 'critical';
     $back_traces = debug_backtrace(0);
     $back_traces = array_slice($back_traces, 3); //Remove 3 first lines corresponding to the logger
-    self::$logger->addRecord($level, 'App:'. $app .' '. $message, $back_traces);
+    self::$logger->$level('App:'. $app .' '. $message);
   }
+
 }
 
-new Rondin();
+$log = new Rondin();
+$log->configure();
+
