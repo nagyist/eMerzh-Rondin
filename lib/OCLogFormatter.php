@@ -21,7 +21,7 @@ class OCLogFormatter implements Monolog\Formatter\FormatterInterface
       'app' => $app,
       'message'=> $record['message'],
       'level' => $this->toOCLevel($record['level_name']),
-      'time' => $record['datetime']->format('U'),
+      'time' => (int)$record['datetime']->format('U'),
       ))."\n";
   }
 

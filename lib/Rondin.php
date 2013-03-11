@@ -15,7 +15,8 @@ class Rondin extends \OC_Log {
   function configure($config) {
     self::$logger = new Logger('owncloud');
     $this->__push(self::$logger, $config['handlers']);
-    $this->__push(self::$logger, $config['processors'], 'Processor');
+    if(isset($config['processors']))
+      $this->__push(self::$logger, $config['processors'], 'Processor');
   }
 
   private function __push($object, $list, $type = 'Handler') {
@@ -40,13 +41,12 @@ class Rondin extends \OC_Log {
     $class = $name;
     if (strpos($class, $type) === false) {
       $class = "\Monolog\\$type\\$name$type";
-    /*} else if (isset($params['search'])) {
-      if (strpos($params['search'], '.php') === false) {
+    } elseif (isset($params['search'])) {
+      /*if (strpos($params['search'], '.php') === false) {
         $params['search'] .= DS . $class . '.php';
-      }
+      }*/
       require_once $params['search'];
       unset($params['search']);
-*/
     }
 
     if ('Handler' === $type) {
