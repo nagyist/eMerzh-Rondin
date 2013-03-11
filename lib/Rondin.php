@@ -9,25 +9,11 @@ class Rondin extends \OC_Log {
   function __construct() {
     parent::$class = $this;
     parent::$enabled = true;
-
-    //self::$logger = new Logger('name');
-    //self::$logger->pushHandler(new StreamHandler('/tmp/your.log', Logger::DEBUG));
   }
 
 
-  function configure() {
-    $config = array('handlers' => array(
-        'Stream' => array(
-          '/tmp/your.log',
-          'formatters' => array(
-//             'Line' => array("%datetime% OUUPS %channel% %level_name%: %message% -- %extra%\n")
-                'OCLogFormatter' => array(),
-          ),
-        ),
-      ),
-      'processors' => array('MemoryUsage', 'Web'),
-    );
-    self::$logger = new Logger('name');
+  function configure($config) {
+    self::$logger = new Logger('owncloud');
     $this->__push(self::$logger, $config['handlers']);
     $this->__push(self::$logger, $config['processors'], 'Processor');
   }
@@ -95,7 +81,7 @@ class Rondin extends \OC_Log {
     elseif(OC_Log::FATAL == $lvl) $level = 'critical';
     $back_traces = debug_backtrace(0);
     $back_traces = array_slice($back_traces, 3); //Remove 3 first lines corresponding to the logger
-    self::$logger->$level('App:'. $app .' '. $message,array('app' => $app));
+    self::$logger->$level($message, array('app' => $app));
   }
 
 }

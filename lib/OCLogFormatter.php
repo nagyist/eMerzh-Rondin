@@ -18,8 +18,8 @@ class OCLogFormatter implements Monolog\Formatter\FormatterInterface
     else $app = 'core';
 
     return json_encode(array(
-      'message'=> $record['message'],
       'app' => $app,
+      'message'=> $record['message'],
       'level' => $this->toOCLevel($record['level_name']),
       'time' => $record['datetime']->format('U'),
       ))."\n";
