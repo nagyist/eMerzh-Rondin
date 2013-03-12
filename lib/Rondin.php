@@ -75,7 +75,7 @@ class Rondin extends \OC_Log {
     elseif(OC_Log::FATAL == $lvl) $level = 'critical';
     $back_traces = debug_backtrace(0);
     $back_traces = array_slice($back_traces, 3); //Remove 3 first lines corresponding to the logger
-    self::$logger->$level($message, array('app' => $app));
+    self::$logger->$level($message, array('app' => $app, 'traceback' => $back_traces));
   }
 
 }
