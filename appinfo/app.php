@@ -33,7 +33,20 @@ spl_autoload_register(__NAMESPACE__ .'\RondinLoader::autoload'); // Depuis PHP 5
 $log = new Rondin();
 $loader = new RondinConfigLoader();
 
+/*$config[] = array('name'=> 'Stream', 'params' => array(
+        '/tmp/your.log',
+        'formatters' => array(
+          'Logstash' => array('web'),
+        ),
+        'processors' => array('MemoryPeakUsage'),
+));
+*/
 $config = $loader->loadStoredConfig();
+if(empty($config)) {
+  $config = array($loader->getCompatConfig());
+}
+//   print '<pre>';
+//print_r($config); die();
 
 //Load old oc Config style
 $loader->storeConfig($config);
