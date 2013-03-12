@@ -31,8 +31,11 @@ spl_autoload_register(__NAMESPACE__ .'\RondinLoader::autoload'); // Depuis PHP 5
 
 //Launch Log Stealer
 $log = new Rondin();
-$config = new RondinConfigLoader();
+$loader = new RondinConfigLoader();
+
+$config = $loader->loadStoredConfig();
 
 //Load old oc Config style
-$log->configure($config->getCompatConfig());
+$loader->storeConfig($config);
+$log->configure($config);
 

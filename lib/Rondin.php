@@ -1,7 +1,7 @@
 <?php
+
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
-
 
 class Rondin extends \OC_Log {
   static $logger = null;
@@ -14,18 +14,12 @@ class Rondin extends \OC_Log {
 
   function configure($config) {
     self::$logger = new Logger('owncloud');
-    $this->__push(self::$logger, $config['handlers']);
-    if(isset($config['processors']))
-      $this->__push(self::$logger, $config['processors'], 'Processor');
+    foreach($config as $handler) {
+      $this->initLogger(self::$logger, $handler['name'], 'Handler', $handler['params']);
+    }
   }
 
   private function __push($object, $list, $type = 'Handler') {
-    if (empty($list)) {
-      if ('Handler' == $type) {
-        $list = array('Stream' => array('/tpm/monolog.log'));
-      }
-    }
-
     foreach ($list as $name => $params) {
       if (is_numeric($name)) {
         $name = $params;
