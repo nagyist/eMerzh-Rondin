@@ -23,15 +23,16 @@
 OC::$CLASSPATH['OCLogFormatter'] = 'rondin/lib/OCLogFormatter.php';
 OC::$CLASSPATH['Rondin'] = 'rondin/lib/Rondin.php';
 OC::$CLASSPATH['RondinLoader'] = 'rondin/lib/RondinLoader.php';
-OC::$CLASSPATH['RondinConfigLoader'] = 'rondin/lib/RondinConfigLoader.php';
+OC::$CLASSPATH['RondinConfig'] = 'rondin/lib/RondinConfig.php';
 
+\OCP\App::registerAdmin('rondin', 'settings');
 
 //AutoLoader for Monolog classes
 spl_autoload_register(__NAMESPACE__ .'\RondinLoader::autoload'); // Depuis PHP 5.3.0
 
 //Launch Log Stealer
 $log = new Rondin();
-$loader = new RondinConfigLoader();
+$loader = new RondinConfig();
 
 /*$config[] = array('name'=> 'Stream', 'params' => array(
         '/tmp/your.log',
@@ -49,6 +50,6 @@ if(empty($config)) {
 //print_r($config); die();
 
 //Load old oc Config style
-$loader->storeConfig($config);
+//$loader->storeConfig($config);
 $log->configure($config);
 

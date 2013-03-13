@@ -1,6 +1,6 @@
 <?php
 
-class RondinConfigLoader {
+class RondinConfig {
 
 	/**
 	* Fetch the config necessary to mimic OC logging
@@ -33,5 +33,24 @@ class RondinConfigLoader {
 		$filename = OC_Config::getValue("datadirectory", OC::$SERVERROOT.'/data').'/logs.conf';
 		// Write the file
 		$result=@file_put_contents( $filename, $content );
+	}
+
+	public static function getHandlers() {
+		return array(
+			'Stream',
+			'RotatingFile',
+			'Syslog',
+			'NativeMail',
+			'SwiftMailer',
+			'Pushover',
+			'Socket',
+			'Amqp',
+			'Gelf',
+			'Cube',
+			'Raven',
+			'ZendMonitor',
+			'FirePHP',
+			'ChromePHP',
+		);
 	}
 }
